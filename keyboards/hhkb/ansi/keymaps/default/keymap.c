@@ -35,7 +35,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TAB, KC_Q, KC_W, KC_E, KC_R, KC_T, KC_Y, KC_U, KC_I, KC_O, KC_P, KC_LBRC, KC_RBRC, KC_BSPC,
         KC_LCTL, KC_A, KC_S, KC_D, KC_F, KC_G, KC_H, KC_J, KC_K, KC_L, KC_SCLN, KC_QUOT, KC_ENT,
         KC_LSFT, KC_Z, KC_X, KC_C, KC_V, KC_B, KC_N, KC_M, KC_COMM, KC_DOT, KC_SLSH, KC_RSFT, MO(HHKB),
-        KC_LALT, KC_LGUI, /*        */ CUSTOM_SPC, KC_RGUI, KC_LANG1),
+        KC_LALT, KC_LGUI, /*        */ CUSTOM_SPACE, KC_RGUI, KC_LNG1),
 
     /* Layer HHKB: HHKB mode (HHKB Fn)
       |------+-----+-----+-----+----+----+----+----+-----+-----+-----+-----+-------+-------+-----|
@@ -59,7 +59,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_CAPS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PSCR, KC_SCRL, KC_PAUS, KC_UP, KC_TRNS, KC_BSPC,
         KC_TRNS, KC_VOLD, KC_VOLU, KC_MUTE, KC_TRNS, KC_TRNS, KC_PAST, KC_PSLS, KC_HOME, KC_PGUP, KC_LEFT, KC_RGHT, KC_PENT,
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PPLS, KC_PMNS, KC_END, KC_PGDN, KC_DOWN, KC_TRNS, KC_TRNS,
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_LANG2)};
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_LNG2)};
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -69,7 +69,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 // 왼쪽 Ctrl이 눌린 상태에서 Space를 누른 경우
                 if (get_mods() & MOD_BIT(KC_LCTL)) {
                     unregister_code(KC_LCTL); // Ctrl 신호 잠시 해제
-                    register_code(KC_LANG1);  // 한영키 신호만 전송
+                    register_code(KC_LNG1);  // 한영키 신호만 전송
                 } else {
                     // 단독 Space 누름
                     register_code(KC_SPC);
@@ -78,7 +78,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 // 스페이스바 스위치를 뗐을 때 (Release)
                 if (get_mods() & MOD_BIT(KC_LCTL)) {
                     // Ctrl+Space 조합으로 누른 뒤 뗐을 때
-                    unregister_code(KC_LANG1); // 한영키만 해제
+                    unregister_code(KC_LNG1); // 한영키만 해제
                     register_code(KC_LCTL);   // 유지 중인 Ctrl 상태 복원
                 } else {
                     // 단독 Space 누른 뒤 뗐을 때
