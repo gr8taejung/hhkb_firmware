@@ -61,31 +61,40 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PPLS, KC_PMNS, KC_END, KC_PGDN, KC_DOWN, KC_TRNS, KC_TRNS,
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_LNG2)};
 
+static bool is_ctrl_space_pressed = false;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case CUSTOM_SPACE:
             if (record->event.pressed) {
-                // 왼쪽 Ctrl이 눌린 상태에서 Space를 누른 경우
+                // 1. 스페이스 누름: Ctrl이 눌려있는 경우
                 if (get_mods() & MOD_BIT(KC_LCTL)) {
-                    unregister_code(KC_LCTL); // Ctrl 신호 잠시 해제
-                    register_code(KC_LNG1);  // 한영키 신호만 전송
+                    is_ctrl_space_pressed = true; // 플래그 활성화
+                    register_code(KC_LNG1);       // 한영키 전송
                 } else {
-                    // 단독 Space 누름
-                    register_code(KC_SPC);
+                    is_ctrl_space_pressed = false; // 단독 스페이스 모드
+                    register_code(KC_SPC);        // 스페이스 전송
                 }
             } else {
-                // 스페이스바 스위치를 뗐을 때 (Release)
-                if (get_mods() & MOD_BIT(KC_LCTL)) {
-                    // Ctrl+Space 조합으로 누른 뒤 뗐을 때
-                    unregister_code(KC_LNG1); // 한영키만 해제
-                    register_code(KC_LCTL);   // 유지 중인 Ctrl 상태 복원
+                // 2. 스페이스 뗌: 플래그 값에 따라 깔끔하게 1:1 해제
+                if (is_ctrl_space_pressed) {
+                    unregister_code(KC_LNG1);     // 한영키 해제
+                    is_ctrl_space_pressed = false;
                 } else {
-                    // 단독 Space 누른 뒤 뗐을 때
-                    unregister_code(KC_SPC);   // 스페이스만 해제
+                    unregister_code(KC_SPC);      // 스페이스 해제
                 }
             }
-            return false; // CUSTOM_SPACE 처리 완료 (QMK 엔진 진입 방지)
+            return false; // CUSTOM_SPACE 처리 완료
+
+        case KC_LCTL:
+            // 3. Ctrl 키를 뗐을 때 (스페이스보다 Ctrl을 먼저 뗀 경우)
+            if (!record->event.pressed) {
+                if (is_ctrl_space_pressed) {
+                    unregister_code(KC_LNG1);     // 즉시 한영키 해제
+                    is_ctrl_space_pressed = false;
+                }
+            }
+            return true; // Ctrl 키 기본 입력 흐름은 유지
 
         default:
             return true;
