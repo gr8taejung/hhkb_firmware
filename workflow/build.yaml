@@ -1,0 +1,33 @@
+name: Build HHKB Hasu Firmware
+
+on:
+  push:
+    paths:
+      - 'keyboards/hhkb/**'
+      - '.github/workflows/build.yml'
+  workflow_dispatch: # Actions 탭에서 수동 실행 버튼 활성화
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: qmkfm/qmk_cli:latest
+
+    steps:
+      - name: Checkout QMK Firmware
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build HHKB Hasu Firmware
+        run: |
+          # hhkb 키보드 타깃의 ansi/32u4 레이아웃 빌드
+          qmk compile -kb hhkb/ansi/32u4 -km mykeymap
+
+      - name: Upload Hex Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hhkb_hasu_firmware
+          path: |
+            *.hex
+            *.bin
+            *.uf2
