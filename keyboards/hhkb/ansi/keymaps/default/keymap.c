@@ -9,6 +9,7 @@
 // 1. 커스텀 키코드 선언 (기존 키코드와의 번호 충돌 방지를 위해 SAFE_RANGE 사용)
 enum custom_keycodes {
     CUSTOM_SPACE = SAFE_RANGE,
+    CUSTOM_LGUI,
 };
 
 
@@ -35,7 +36,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TAB, KC_Q, KC_W, KC_E, KC_R, KC_T, KC_Y, KC_U, KC_I, KC_O, KC_P, KC_LBRC, KC_RBRC, KC_BSPC,
         KC_LCTL, KC_A, KC_S, KC_D, KC_F, KC_G, KC_H, KC_J, KC_K, KC_L, KC_SCLN, KC_QUOT, KC_ENT,
         KC_LSFT, KC_Z, KC_X, KC_C, KC_V, KC_B, KC_N, KC_M, KC_COMM, KC_DOT, KC_SLSH, KC_RSFT, MO(HHKB),
-        KC_LALT, KC_LGUI, /*        */ CUSTOM_SPACE, KC_RGUI, KC_LNG1),
+        KC_LALT, CUSTOM_LGUI, CUSTOM_SPACE, KC_RGUI, KC_LNG1),
 
     /* Layer HHKB: HHKB mode (HHKB Fn)
       |------+-----+-----+-----+----+----+----+----+-----+-----+-----+-----+-------+-------+-----|
@@ -62,6 +63,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_LNG2)};
 
 static bool is_ctrl_space_pressed = false;
+static bool is_lgui_pressed = false;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
@@ -96,7 +98,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return true; // Ctrl 키 기본 입력 흐름은 유지
 
+        case CUSTOM_LGUI:
+            if (record->event.pressed) {
+                is_lgui_pressed = true;
+            } else {
+                // 체크 없이 무조건 unregister를 호출해도 안전합니다.
+                unregister_code(KC_LGUI);
+                is_lgui_pressed = false;
+            }
+
         default:
+            // 일반 키(A, B, E 등)가 들어왔을 때 LGUI가 눌려 있는 상태라면
+            // 조합키 생성을 위해 KC_LGUI를 먼저 register합니다.
+            if (is_lgui_pressed && record->event.pressed) {
+                register_code(KC_LGUI);
+            }
             return true;
     }
 }
