@@ -106,6 +106,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 unregister_code(KC_LGUI);
                 is_lgui_pressed = false;
             }
+            return false;
 
         default:
             // 일반 키(A, B, E 등)가 들어왔을 때 LGUI가 눌려 있는 상태라면
